@@ -2,12 +2,9 @@ import socket
 import select
 import struct
 
-import json
-
 #protocol:
 #   header                  data
 #   2B (=size of u short)   0-(2^16-1)B
-
 class TCPServer(object):
   HEADER_SIZE = 2
 
