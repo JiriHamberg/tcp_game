@@ -19,7 +19,7 @@ def unpack_msg(message):
   return (msg_len, msg)
 
 if __name__ == "__main__":
-  msg = {'type':'hi', 'data': "trolololololo"*500}
+  msg = {'type':'hi', 'data': "trolololololo"*5}
   s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
   s.connect(('127.0.0.1', 13373))
   s.sendall(pack_msg(msg))
