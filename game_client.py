@@ -6,15 +6,18 @@ import Queue
 import sys
 import threading
 
+import pygame
+
 import server.tcp_io as tcp_io
 import server.handler as handler
+import client.pygame_gui as pygame_gui
 #import protocol
 
-HEADER_SIZE = 2
+HEADER_SIZE = 8
 
 def pack_msg(message):
     msg = json.dumps(message)
-    data = struct.pack("H", len(msg)) + msg
+    data = struct.pack("Q", len(msg)) + msg
     return data
 
 class ClientIO(object):
@@ -38,8 +41,7 @@ class ClientIO(object):
 
 
 def print_data(data):
-  for y in range(0, len(data)):
-    print(" ".join(data[y]))
+  gui.grid = data
 
 def on_update(_, data):
   print_data(data)
@@ -57,20 +59,8 @@ client_io.event_map.bind_event("update", on_update)
 
 client_io.start()
 
-while True:
-  send_message({"type": "join", "data": ""})
-  key = sys.stdin.read(1)
-  print("input key was: %s" % (key))
-
-  if key == 'a':
-    send_message({"type": "move", "data": {"command": "left"} })
-  elif key == 'w':
-    send_message({"type": "move", "data": {"command": "up"} })
-  elif key == 'd':
-    send_message({"type": "move", "data": {"command": "right"} })
-  elif key == 's':
-    send_message({"type": "move", "data": {"command": "down"} })
-
-
- # print "msg len: %s  msg: %s" % unpacked
-  #s.close()
+gui = pygame_gui.GUI([], send_message)
+gui_thread = gui.start_thread()
+send_message({"type": "join", "data": ""})
+gui_thread.join()
+s.close()

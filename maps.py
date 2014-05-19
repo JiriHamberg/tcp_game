@@ -12,10 +12,10 @@ class Map(object):
      for x in range(0, len(self.grid[0])):
       if self.grid[y][x] == symbol:
         if command == "up":
-          self.apply_move(symbol, x, y, x, y + 1)
+          self.apply_move(symbol, x, y, x, y - 1)
           return
         elif command == "down":
-          self.apply_move(symbol, x, y, x, y - 1)
+          self.apply_move(symbol, x, y, x, y + 1)
           return
         elif command == "left":
           self.apply_move(symbol, x, y, x - 1, y)

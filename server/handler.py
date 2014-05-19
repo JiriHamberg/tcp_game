@@ -3,6 +3,8 @@ import json
 import threading
 import Queue
 
+import config
+
 class JSON_EventMap(object):
   def __init__(self, send_message_function):
     """
@@ -13,6 +15,7 @@ class JSON_EventMap(object):
     self._send_message_function = send_message_function
     self.queue = Queue.Queue()
     self.msg_map = {}
+    self.on_connection_closed = None
 
   def set_msg_map(self, msg_map):
     self.msg_map = msg_map
@@ -20,11 +23,18 @@ class JSON_EventMap(object):
   def bind_event(self, event_name, event_handler):
     self.msg_map[event_name] = event_handler
 
+  def set_on_connection_closed(self, function):
+    self.on_connection_closed = function
+
   def send_message(self, connection_id, message):
     #self.server.dispatch_message( connection_id, json.dumps(message) )
     self._send_message_function( connection_id, json.dumps(message) )
 
   def handle(self, connection_id, data):
+    if connection_id == config.CONNECTION_CLOSED:
+      if self.on_connection_closed:
+        self.on_connection_closed(data)
+      return
     msg = json.loads(data.strip())
     msg_type = msg["type"]
     msg_data = msg["data"]

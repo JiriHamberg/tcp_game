@@ -4,10 +4,12 @@ import struct
 import uuid
 import threading
 import Queue
+import errno
 
+import config
 #protocol:
 #   header                  data
-#   2B (=size of u short)   0-(2^16-1)B
+#   8B (=size of u long)   
 
 def _start_thread(self):
   thread = threading.Thread(target = self.run)
@@ -17,7 +19,7 @@ def _start_thread(self):
 
 class Server(object):
   start_thread = _start_thread
-  HEADER_SIZE = 2
+  HEADER_SIZE = 8
 
   def __init__(self, address):
     self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -55,7 +57,7 @@ class OutputDispatcher(object):
     self.queue = Queue.Queue()
 
   def create_packet(self, message):
-    return struct.pack("H", len(message)) + message
+    return struct.pack("Q", len(message)) + message
 
   def run(self):
     for receiver_id, message in iter(self.queue.get, None):
@@ -92,7 +94,7 @@ class Client(object):
       data_buffer = self.data_buffer
       if len(data_buffer) < 2:
         break
-      next_msg_len = struct.unpack("H", str(data_buffer[ : Server.HEADER_SIZE]))[0]
+      next_msg_len = struct.unpack("Q", str(data_buffer[ : Server.HEADER_SIZE]))[0]
       if len(data_buffer) >= next_msg_len + Server.HEADER_SIZE:
         msg = str(data_buffer[Server.HEADER_SIZE : next_msg_len + Server.HEADER_SIZE])
         self.data_buffer = data_buffer[next_msg_len + Server.HEADER_SIZE :]
@@ -100,7 +102,15 @@ class Client(object):
       else:
         break
 
+  def on_connection_closed(self):
+    self.packet_queue.put((config.CONNECTION_CLOSED, self.connection_id))
+
   def run(self):
-    for data in iter(lambda: self.socket.recv(Client.TCP_BUFFER_SIZE), ''):
-      self.process_client_data(data)
-    #connection closed
+    try:
+      for data in iter(lambda: self.socket.recv(Client.TCP_BUFFER_SIZE), ''):
+        self.process_client_data(data)
+    except socket.error as e:
+      if e.errno == errno.ECONNRESET:
+        self.on_connection_closed()
+    #got 0 bytes, connection closed gracefully
+    self.on_connection_closed()
