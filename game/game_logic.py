@@ -18,8 +18,10 @@ class GameLogic(object):
     if len(self.players) == self.max_player_count:
       self.server.send_message(connection_id, {"type": "rejected", "data": "GAME_FULL"})
       return
-    symbol = str(len(self.players) + 1)
-    self.players[connection_id] = players.Player(symbol)
+    color = str(len(self.players) + 1)
+    player = players.Player(color)
+    self.players[connection_id] = player
+    self.map.on_join(player)
 
   def event_leave(self, connection_id):
     if connection_id in self.players:
@@ -27,10 +29,11 @@ class GameLogic(object):
 
   def event_move(self, connection_id, data):
     if connection_id in self.players:
-      self.map.on_move(self.players[connection_id].symbol, data["command"])
+      self.map.on_move(self.players[connection_id], data["command"])
 
   def update(self):
-    msg = {"type": "update", "data": self.map.grid }
+    msg = {"type": "update", "data": self.map.pack_objects()}
+    #msg = {"type": "update", "data": self.map.grid }
     for connection_id in self.players:
       self.server.send_message(connection_id, msg)
 

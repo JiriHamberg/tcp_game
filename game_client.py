@@ -43,7 +43,8 @@ class ClientIO(object):
 
 
 def print_data(data):
-  gui.grid = data
+  #gui.grid = data
+  gui.render(data)
 
 def on_update(_, data):
   print_data(data)
