@@ -20,6 +20,7 @@ def _start_thread(self):
 class Server(object):
   start_thread = _start_thread
   HEADER_SIZE = 8
+  ENCODING = 'UTF-8'
 
   def __init__(self, address):
     self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -57,7 +58,7 @@ class OutputDispatcher(object):
     self.queue = Queue.Queue()
 
   def create_packet(self, message):
-    return struct.pack("Q", len(message)) + message
+    return struct.pack("!Q", len(message)) + message.encode(encoding=Server.ENCODING)
 
   def run(self):
     for receiver_id, message in iter(self.queue.get, None):
@@ -94,9 +95,9 @@ class Client(object):
       data_buffer = self.data_buffer
       if len(data_buffer) < 2:
         break
-      next_msg_len = struct.unpack("Q", str(data_buffer[ : Server.HEADER_SIZE]))[0]
+      next_msg_len = struct.unpack("!Q", str(data_buffer[ : Server.HEADER_SIZE]))[0]
       if len(data_buffer) >= next_msg_len + Server.HEADER_SIZE:
-        msg = str(data_buffer[Server.HEADER_SIZE : next_msg_len + Server.HEADER_SIZE])
+        msg = str(data_buffer[Server.HEADER_SIZE : next_msg_len + Server.HEADER_SIZE]).decode(encoding=Server.ENCODING)
         self.data_buffer = data_buffer[next_msg_len + Server.HEADER_SIZE :]
         self.packet_queue.put((self.connection_id, msg), block = True) #handle(server, connection, message)
       else:

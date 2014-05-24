@@ -14,10 +14,12 @@ import client.pygame_gui as pygame_gui
 #import protocol
 
 HEADER_SIZE = 8
+ENCODING = 'UTF-8'
+
 
 def pack_msg(message):
     msg = json.dumps(message)
-    data = struct.pack("Q", len(msg)) + msg
+    data = struct.pack("!Q", len(msg)) + msg.encode(encoding=ENCODING)
     return data
 
 class ClientIO(object):
