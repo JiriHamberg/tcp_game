@@ -41,13 +41,8 @@ class ClientIO(object):
     self.message_consumer.daemon = True
     self.message_consumer.start()
 
-
-def print_data(data):
-  #gui.grid = data
-  gui.render(data)
-
 def on_update(_, data):
-  print_data(data)
+  gui.render(data)
 
 def send_message(message):
   client_io.queue.put( (1, message) )

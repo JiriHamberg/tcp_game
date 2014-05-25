@@ -1,0 +1,16 @@
+List of art assets used:
+
+Panda.png
+	from opengameart.org
+	by @danielmahon (twitter)
+	licence: http://creativecommons.org/licenses/by-sa/3.0/
+
+BombExploding.png
+	from opengameart.org
+	by Hyptosis and Zabin
+	licence: http://creativecommons.org/licenses/by/3.0/
+
+tiles.png
+	from opengameart.org
+	by dravenx
+	licence: http://creativecommons.org/licenses/by/3.0/

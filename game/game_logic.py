@@ -31,9 +31,12 @@ class GameLogic(object):
     if connection_id in self.players:
       self.map.on_move(self.players[connection_id], data["command"])
 
+  def event_bomb(self, connection_id, data):
+    if connection_id in self.players:
+      self.map.on_drop_bomb(self.players[connection_id])
+
   def update(self):
     msg = {"type": "update", "data": self.map.pack_objects()}
-    #msg = {"type": "update", "data": self.map.grid }
     for connection_id in self.players:
       self.server.send_message(connection_id, msg)
 
@@ -72,7 +75,6 @@ class GameServer(object):
     threads.append(main_thread)
     return threads
 
-
 class GameMain(object):
   def __init__(self):
     self.game_server = GameServer()
@@ -83,6 +85,7 @@ class GameMain(object):
     self.game_server.event_handler.set_on_connection_closed(self.game_logic.event_leave)
     self.game_server.event_handler.bind_event("join", self.game_logic.event_join)
     self.game_server.event_handler.bind_event("move", self.game_logic.event_move)
+    self.game_server.event_handler.bind_event("bomb", self.game_logic.event_bomb)
 
   def start(self):
     """ Entry point to the game. Binds game logic events to game server events and starts the server.
