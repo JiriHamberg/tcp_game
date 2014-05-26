@@ -30,6 +30,8 @@ class GUI(object):
         self.draw_brick(sprite)
       elif sprite["type"] == "bomb":
         self.draw_bomb(sprite)
+      elif sprite["type"] == "explosion":
+        self.draw_explosion(sprite)
     #pygame.display.update()
     pygame.display.flip()
 
@@ -49,6 +51,13 @@ class GUI(object):
 
   def draw_bomb(self, sprite):
     animation = self.bomb_sprite_mapper.bomb_animation()
+    timer = sprite["timer"]
+    start_timer = sprite["timer_start"]
+    image = animation[ int((len(animation) - 1) - (timer / float(start_timer)) * (len(animation) - 1)) ]
+    self.screen.blit(image, (sprite["pos"][0], sprite["pos"][1] - 32))
+
+  def draw_explosion(self, sprite):
+    animation = self.bomb_sprite_mapper.explosion_animation()
     timer = sprite["timer"]
     start_timer = sprite["timer_start"]
     image = animation[ int((len(animation) - 1) - (timer / float(start_timer)) * (len(animation) - 1)) ]

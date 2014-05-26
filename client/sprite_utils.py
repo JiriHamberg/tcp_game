@@ -90,4 +90,4 @@ class BombSpriteMapper(SpriteMapper):
     return self.sprites_at([(i, 1) for i in range(1, 8)], colorkey=(255, 255, 255))
 
   def explosion_animation(self):
-    return self.sprites_at([(i, 1) for i in range(8, 15)])
+    return self.sprites_at([(i, 1) for i in range(8, 14)], colorkey=(255, 255, 255))

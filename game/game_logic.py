@@ -33,9 +33,15 @@ class GameLogic(object):
 
   def event_bomb(self, connection_id, data):
     if connection_id in self.players:
-      self.map.on_drop_bomb(self.players[connection_id])
+      player = self.players[connection_id]
+      if player.can_drop_bomb():
+        self.map.on_drop_bomb(player)
+        player.on_drop_bomb()
 
   def update(self):
+    self.map.update()
+    for k in self.players:
+      self.players[k].update()
     msg = {"type": "update", "data": self.map.pack_objects()}
     for connection_id in self.players:
       self.server.send_message(connection_id, msg)

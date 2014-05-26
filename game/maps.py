@@ -27,11 +27,24 @@ class Map(object):
     return colors[len(self.players) - 1]
 
   def update(self):
-    pass
+    def on_explosion_collide(sprite):
+      sprite.active = False
+      #pass
+    self.brick_sprites = filter(lambda s: s.active, self.brick_sprites)
+    self.bomb_sprites = filter(lambda s: s.active, self.bomb_sprites)
+    self.explosion_sprites = filter(lambda s: s.active, self.explosion_sprites)
+    new_explosions = []
+    for explosion in self.explosion_sprites:
+      explosion_targets = self.all_sprites()
+      explosion_targets.remove(explosion)
+      new_explosions.extend(explosion.update(explosion_targets, on_explosion_collide))
+    self.explosion_sprites.extend(new_explosions)
+    for bomb in self.bomb_sprites:
+      self.explosion_sprites.extend(bomb.update())
 
   def on_move(self, player, command):
     my_sprite = player.sprite
-    collision_candidates = self.player_sprites + self.brick_sprites + self.tile_sprites 
+    collision_candidates = self.player_sprites + self.brick_sprites + self.tile_sprites + self.bomb_sprites
     collision_candidates.remove(my_sprite)
     if command == "up":
       collision_candidates = filter(lambda s: s.pos[1] <= my_sprite.pos[1] and s.collides(my_sprite)[0], collision_candidates)

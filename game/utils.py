@@ -54,10 +54,10 @@ class BombSprite(Sprite):
     self.power = power
 
   def update(self):
-    if active == False:
+    if self.active == False:
       return []
     self.timer -= 1
-    if timer <= 0:
+    if self.timer <= 0:
       return self.explode()
     else:
       return []
@@ -80,42 +80,50 @@ class BombSprite(Sprite):
 
 class ExplosionSprite(Sprite):
   def __init__(self, x, y, power, direction, timer=10):
+    Sprite.__init__(self, x, y, 32, 32)
     self.power = power
     self.direction = direction
     self.timer = timer
+    self.timer_start = timer
 
   def pack(self):
     packed = Sprite.pack(self)
     packed["type"] = "explosion"
+    packed["timer"] = self.timer
+    packed["timer_start"] = self.timer_start
     return packed
 
   def update(self, targets, collision_callback):
     #assert(self.active == True)
-    if active == False:
+    if self.active == False:
       return []
+    collided = False
+    for sprite in targets:
+      if all(self.collides(sprite)):
+        #self.active = False
+        collided = True
+        collision_callback(sprite)
     self.timer -= 1
-    if timer <= 0:
-      self.active = False
-      for sprite in targets:
-        if self.collides(sprite):
-          collision_callback(sprite)
-          return []
+    if self.timer == self.timer_start - 1 and not collided:
       return self.spawn_explosions()
+    if self.timer <= 0:
+      self.active = False
+    return []
 
   def spawn_explosions(self):
     explosions = []
-    if power <= 0:
+    if self.power <= 0:
       return explosions
-    if direction == "up":
-      explosions.append(Explosion(self.pos[0], self.pos[1] - self.dim[1], self.power - 1, direction))
-    elif direction == "down":
-       explosions.append(Explosion(self.pos[0], self.pos[1] + self.dim[1], self.power - 1, direction))
-    elif direction == "left":
-      explosions.append(Explosion(self.pos[0] - self.dim[0], self.pos[1], self.power - 1, direction))
-    elif direction == "right":
-      explosions.append(Explosion(self.pos[0] + self.dim[0], self.pos[1], self.power - 1, direction))
+    if self.direction == "up":
+      explosions.append(ExplosionSprite(self.pos[0], self.pos[1] - self.dim[1], self.power - 1, self.direction))
+    elif self.direction == "down":
+       explosions.append(ExplosionSprite(self.pos[0], self.pos[1] + self.dim[1], self.power - 1, self.direction))
+    elif self.direction == "left":
+      explosions.append(ExplosionSprite(self.pos[0] - self.dim[0], self.pos[1], self.power - 1, self.direction))
+    elif self.direction == "right":
+      explosions.append(ExplosionSprite(self.pos[0] + self.dim[0], self.pos[1], self.power - 1, self.direction))
     else:
-      raise Exception("Invalid direction: %s" % (direction))
+      raise Exception("Invalid direction: %s" % (self.direction))
     return explosions
 
 
