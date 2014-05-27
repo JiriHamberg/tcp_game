@@ -13,7 +13,7 @@ class GUI(object):
     self.grid = grid
     pygame.init()
     self.clock = pygame.time.Clock()
-    self.screen = pygame.display.set_mode((640,480))
+    self.screen = pygame.display.set_mode((640,480), pygame.DOUBLEBUF, 32)
     self.down_keys = []
     self.player_positions = {}
 
@@ -40,31 +40,40 @@ class GUI(object):
     if sprite_color not in self.player_positions:
       self.player_positions[sprite_color] = {"direction": "down", "pos": sprite["pos"], "frame": 0}
     image = self.get_player_animation_frame(sprite_color, sprite["pos"])
-    self.screen.blit(image, (sprite["pos"][0] - 4, sprite["pos"][1] - 4 ))
+    x, y = self.player_sprite_mapper.align(sprite)
+    self.screen.blit(image, (x, y))
     #color = color = (255,0,0)
     #pygame.draw.rect(self.screen, color, (sprite["pos"][0], sprite["pos"][1], sprite["dim"][0], sprite["dim"][1]))
 
   def draw_brick(self, sprite):
     image = self.brick_sprite_mapper.sprite_at(2, 4)
-    self.screen.blit(image, sprite["pos"])
+    x, y = self.brick_sprite_mapper.align(sprite)
+    self.screen.blit(image, (x, y))
     #pygame.draw.rect(self.screen, (255, 0, 0), (sprite["pos"][0], sprite["pos"][1], sprite["dim"][0], sprite["dim"][1]))
 
   def draw_bomb(self, sprite):
+    #animation = self.bomb_sprite_mapper.bomb_animation()
+    #timer = sprite["timer"]
+    #start_timer = sprite["timer_start"]
+    #image = animation[ int((len(animation) - 1) - (timer / float(start_timer)) * (len(animation) - 1)) ]
+    #self.screen.blit(image, (sprite["pos"][0], sprite["pos"][1] - 32))
     animation = self.bomb_sprite_mapper.bomb_animation()
     timer = sprite["timer"]
     start_timer = sprite["timer_start"]
-    image = animation[ int((len(animation) - 1) - (timer / float(start_timer)) * (len(animation) - 1)) ]
-    self.screen.blit(image, (sprite["pos"][0], sprite["pos"][1] - 32))
+    frame = int((len(animation) - 1) - (timer / float(start_timer)) * (len(animation) - 1))
+    self.bomb_sprite_mapper.draw_frame(self.screen, sprite, animation, frame)
+
 
   def draw_explosion(self, sprite):
     animation = self.bomb_sprite_mapper.explosion_animation()
     timer = sprite["timer"]
     start_timer = sprite["timer_start"]
-    image = animation[ int((len(animation) - 1) - (timer / float(start_timer)) * (len(animation) - 1)) ]
-    self.screen.blit(image, (sprite["pos"][0], sprite["pos"][1] - 32))
+    #image = animation[ int((len(animation) - 1) - (timer / float(start_timer)) * (len(animation) - 1)) ]
+    #self.screen.blit(image, (sprite["pos"][0], sprite["pos"][1] - 32))
+    frame = int((len(animation) - 1) - (timer / float(start_timer)) * (len(animation) - 1))
+    self.bomb_sprite_mapper.draw_frame(self.screen, sprite, animation, frame)
 
   def get_player_animation_frame(self, color, new_pos):
-    #import sprite_utils
     state = self.player_positions[color]
     idle = True
     old_direction = state["direction"]

@@ -29,8 +29,9 @@ class Sprite(object):
     return {"pos": self.pos, "dim": self.dim}
 
 class PlayerSprite(Sprite):
-  def __init__(self, x, y, w, h, color):
-    Sprite.__init__(self, x, y, w, h)
+  DIM = (24, 24)
+  def __init__(self, x, y, color):
+    Sprite.__init__(self, x, y, PlayerSprite.DIM[0], PlayerSprite.DIM[1])
     self.type = "player"
     self.color = color
 
@@ -47,8 +48,9 @@ class BrickSprite(Sprite):
     return packed
 
 class BombSprite(Sprite):
+  DIM = (20, 20)
   def __init__(self, x, y, power, timer=50):
-    Sprite.__init__(self, x, y, 32, 32)
+    Sprite.__init__(self, x, y, BombSprite.DIM[0], BombSprite.DIM[1])
     self.timer_start = timer
     self.timer = timer
     self.power = power
@@ -65,10 +67,11 @@ class BombSprite(Sprite):
   def explode(self):
     self.active = False
     explosions = []
-    explosions.append(ExplosionSprite(self.pos[0] - self.dim[0], self.pos[1], self.power, "left"))
-    explosions.append(ExplosionSprite(self.pos[0] + self.dim[0], self.pos[1], self.power, "right"))
-    explosions.append(ExplosionSprite(self.pos[0], self.pos[1] - self.dim[1] , self.power, "up"))
-    explosions.append(ExplosionSprite(self.pos[0], self.pos[1] + self.dim[1] , self.power, "down"))
+    explosions.append(ExplosionSprite(self.pos[0], self.pos[1], 0, "left"))
+    explosions.append(ExplosionSprite(self.pos[0] - self.dim[0], self.pos[1], self.power - 1, "left"))
+    explosions.append(ExplosionSprite(self.pos[0] + self.dim[0], self.pos[1], self.power - 1, "right"))
+    explosions.append(ExplosionSprite(self.pos[0], self.pos[1] - self.dim[1] , self.power - 1, "up"))
+    explosions.append(ExplosionSprite(self.pos[0], self.pos[1] + self.dim[1] , self.power - 1, "down"))
     return explosions
 
   def pack(self):
@@ -79,8 +82,9 @@ class BombSprite(Sprite):
     return packed
 
 class ExplosionSprite(Sprite):
+  DIM = (20, 20)
   def __init__(self, x, y, power, direction, timer=10):
-    Sprite.__init__(self, x, y, 32, 32)
+    Sprite.__init__(self, x, y, ExplosionSprite.DIM[0], ExplosionSprite.DIM[1])
     self.power = power
     self.direction = direction
     self.timer = timer

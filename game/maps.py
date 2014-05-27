@@ -15,7 +15,7 @@ class Map(object):
 
   def on_join(self, player):
     pos = self.find_spawning_point(player)
-    player.sprite =  PlayerSprite(pos[0], pos[1], 24, 24, self.get_next_color())
+    player.sprite =  PlayerSprite(pos[0], pos[1], self.get_next_color())
     self.player_sprites.append(player.sprite)
     self.players.append(player)
    
@@ -67,7 +67,7 @@ class Map(object):
 
   def on_drop_bomb(self, player):
     x, y = player.sprite.pos
-    self.bomb_sprites.append(BombSprite(x, y, player.bomb_power))
+    self.bomb_sprites.append(BombSprite( x - (PlayerSprite.DIM[0] - BombSprite.DIM[0]) / 2, y - (PlayerSprite.DIM[1] - BombSprite.DIM[1]) / 2, player.bomb_power))
 
   def pack_objects(self):
     objects = []

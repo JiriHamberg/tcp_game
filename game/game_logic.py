@@ -9,6 +9,7 @@ import threading
 
 class GameLogic(object):
   def __init__(self, server):
+    self.lock = threading.RLock()
     self.max_player_count = 2
     self.server = server
     self.map = maps.Map(25, 15)
@@ -24,27 +25,31 @@ class GameLogic(object):
     self.map.on_join(player)
 
   def event_leave(self, connection_id):
-    if connection_id in self.players:
-      del self.players[connection_id]
+    with self.lock:
+      if connection_id in self.players:
+        del self.players[connection_id]
 
   def event_move(self, connection_id, data):
-    if connection_id in self.players:
-      self.map.on_move(self.players[connection_id], data["command"])
+    with self.lock:
+      if connection_id in self.players:
+        self.map.on_move(self.players[connection_id], data["command"])
 
   def event_bomb(self, connection_id, data):
-    if connection_id in self.players:
-      player = self.players[connection_id]
-      if player.can_drop_bomb():
-        self.map.on_drop_bomb(player)
-        player.on_drop_bomb()
+    with self.lock:
+      if connection_id in self.players:
+        player = self.players[connection_id]
+        if player.can_drop_bomb():
+          self.map.on_drop_bomb(player)
+          player.on_drop_bomb()
 
   def update(self):
     self.map.update()
-    for k in self.players:
-      self.players[k].update()
-    msg = {"type": "update", "data": self.map.pack_objects()}
-    for connection_id in self.players:
-      self.server.send_message(connection_id, msg)
+    with self.lock:  
+      for k in self.players:
+        self.players[k].update()
+      msg = {"type": "update", "data": self.map.pack_objects()}
+      for connection_id in self.players:
+        self.server.send_message(connection_id, msg)
 
 class GameServer(object):
   FPS = 20.0
