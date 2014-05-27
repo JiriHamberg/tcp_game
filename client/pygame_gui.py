@@ -13,7 +13,7 @@ class GUI(object):
     self.grid = grid
     pygame.init()
     self.clock = pygame.time.Clock()
-    self.screen = pygame.display.set_mode((640,480), pygame.DOUBLEBUF, 32)
+    self.screen = pygame.display.set_mode((860,640), pygame.DOUBLEBUF, 32)
     self.down_keys = []
     self.player_positions = {}
 
@@ -32,7 +32,8 @@ class GUI(object):
         self.draw_bomb(sprite)
       elif sprite["type"] == "explosion":
         self.draw_explosion(sprite)
-    #pygame.display.update()
+      elif sprite["type"] == "tile":
+        self.draw_tile(sprite)
     pygame.display.flip()
 
   def draw_player(self, sprite):
@@ -42,34 +43,28 @@ class GUI(object):
     image = self.get_player_animation_frame(sprite_color, sprite["pos"])
     x, y = self.player_sprite_mapper.align(sprite)
     self.screen.blit(image, (x, y))
-    #color = color = (255,0,0)
-    #pygame.draw.rect(self.screen, color, (sprite["pos"][0], sprite["pos"][1], sprite["dim"][0], sprite["dim"][1]))
 
   def draw_brick(self, sprite):
     image = self.brick_sprite_mapper.sprite_at(2, 4)
     x, y = self.brick_sprite_mapper.align(sprite)
     self.screen.blit(image, (x, y))
-    #pygame.draw.rect(self.screen, (255, 0, 0), (sprite["pos"][0], sprite["pos"][1], sprite["dim"][0], sprite["dim"][1]))
+
+  def draw_tile(self, sprite):
+    image = self.brick_sprite_mapper.sprite_at(4, 5)
+    x, y = self.brick_sprite_mapper.align(sprite)
+    self.screen.blit(image, (x, y))
 
   def draw_bomb(self, sprite):
-    #animation = self.bomb_sprite_mapper.bomb_animation()
-    #timer = sprite["timer"]
-    #start_timer = sprite["timer_start"]
-    #image = animation[ int((len(animation) - 1) - (timer / float(start_timer)) * (len(animation) - 1)) ]
-    #self.screen.blit(image, (sprite["pos"][0], sprite["pos"][1] - 32))
     animation = self.bomb_sprite_mapper.bomb_animation()
     timer = sprite["timer"]
     start_timer = sprite["timer_start"]
     frame = int((len(animation) - 1) - (timer / float(start_timer)) * (len(animation) - 1))
     self.bomb_sprite_mapper.draw_frame(self.screen, sprite, animation, frame)
 
-
   def draw_explosion(self, sprite):
     animation = self.bomb_sprite_mapper.explosion_animation()
     timer = sprite["timer"]
     start_timer = sprite["timer_start"]
-    #image = animation[ int((len(animation) - 1) - (timer / float(start_timer)) * (len(animation) - 1)) ]
-    #self.screen.blit(image, (sprite["pos"][0], sprite["pos"][1] - 32))
     frame = int((len(animation) - 1) - (timer / float(start_timer)) * (len(animation) - 1))
     self.bomb_sprite_mapper.draw_frame(self.screen, sprite, animation, frame)
 
@@ -101,18 +96,6 @@ class GUI(object):
     state["direction"] = direction
     animation = self.player_sprite_mapper.get_animation(direction, idle)  #sprite_utils.PlayerSprite.get_animation(direction, idle)
     return animation[frame % len(animation)]
-
-  """def draw(self):
-    self.screen.fill((255,255,255))
-    for y in range(0, len(self.grid)):
-      for x in range(0, len(self.grid[0])):
-        if self.grid[y][x] == ' ':
-          color = (255,255,255)
-        else:
-          color = (255,0,0)
-        dx = 640/len(self.grid[0])
-        dy = 480/len(self.grid)   
-        pygame.draw.rect(self.screen, color, (dx*x, dy*y, dx, dy))"""
 
   def send_move_command(self):
     for key in self.down_keys:

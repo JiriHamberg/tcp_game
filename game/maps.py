@@ -8,28 +8,30 @@ class Map(object):
       self.dim = (w, h)
       self.player_sprites = []
       self.brick_sprites = BrickLayout.generate()
-      self.tile_sprites = []
+      self.tile_sprites = TileLayout.generate()
       self.bomb_sprites = []
       self.explosion_sprites = []
       self.players = []
 
   def on_join(self, player):
-    pos = self.find_spawning_point(player)
-    player.sprite =  PlayerSprite(pos[0], pos[1], self.get_next_color())
+    color = self.get_next_color()
+    x, y = self.find_spawning_point(color)
+    player.sprite =  PlayerSprite(x, y, color)
     self.player_sprites.append(player.sprite)
     self.players.append(player)
    
   def find_spawning_point(self, color):
-    return (100, 100)  
+    spawn_map = {"red": (32, 32), "blue": (16*32, 16*32), "green": (16*32, 32), "yellow": (32, 16*32)}
+    return spawn_map[color] 
 
   def get_next_color(self):
-    colors = ["red", "blue"]
+    colors = ["red", "blue", "green", "yellow"]
     return colors[len(self.players) - 1]
 
   def update(self):
     def on_explosion_collide(sprite):
       sprite.active = False
-      #pass
+
     self.brick_sprites = filter(lambda s: s.active, self.brick_sprites)
     self.bomb_sprites = filter(lambda s: s.active, self.bomb_sprites)
     self.explosion_sprites = filter(lambda s: s.active, self.explosion_sprites)
@@ -84,8 +86,36 @@ class BrickLayout(object):
   @staticmethod
   def generate():
     bricks = []
-    for i in [ 2*x for x in range(0, 9)]:
-      for j in [ 2*x for x in range(0, 9)]:
-        bricks.append(BrickSprite(32 + i*32, 32 + j*32, 32, 32))
+
+    for x in range(3, 16):
+      for y in range(1, 18):
+        if not x % 2 == 0 or not y % 2 == 0:
+          bricks.append(BrickSprite(32 * x , 32 * y))
+
+    for x in [1, 2, 16, 17]:
+      for y in range(3, 16):
+        if not x % 2 == 0 or not y % 2 == 0:
+          bricks.append(BrickSprite(32 * x , 32 * y))
+
+    #for i in [ 2*x for x in range(0, 9)]:
+    #  for j in [ 2*x for x in range(0, 9)]:
+    #    bricks.append(BrickSprite(32 + i*32, 32 + j*32))
     return bricks
-    
+
+class TileLayout(object):
+  @staticmethod
+  def generate():
+    tiles = []
+
+    for y in range(0, 19):
+      tiles.append(TileSprite(0, y*32))
+      tiles.append(TileSprite(18*32, y*32))
+
+    for x in range(1, 18):
+      tiles.append(TileSprite(x*32, 0))
+      tiles.append(TileSprite(x*32, 18*32))
+
+    for x in [ 2*i for i in range(0, 9)]:
+      for y in [ 2*i for i in range(0, 9)]:
+        tiles.append(TileSprite(64 + x*32, 64 + y*32))
+    return tiles

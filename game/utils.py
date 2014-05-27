@@ -42,10 +42,23 @@ class PlayerSprite(Sprite):
     return packed
 
 class BrickSprite(Sprite):
+  DIM = (32, 32)
+  def __init__(self, x, y):
+    Sprite.__init__(self, x, y, BrickSprite.DIM[0], BrickSprite.DIM[1])
   def pack(self):
     packed = Sprite.pack(self)
     packed["type"] = "brick"
     return packed
+
+class TileSprite(Sprite):
+  DIM = (32, 32)
+  def __init__(self, x, y):
+    Sprite.__init__(self, x, y, TileSprite.DIM[0], TileSprite.DIM[1])
+  def pack(self):
+    packed = Sprite.pack(self)
+    packed["type"] = "tile"
+    return packed
+
 
 class BombSprite(Sprite):
   DIM = (20, 20)
