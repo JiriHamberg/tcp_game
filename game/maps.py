@@ -22,18 +22,24 @@ class Map(object):
     color = self.get_next_color()
     x, y = self.find_spawning_point(color)
     player.sprite =  PlayerSprite(x, y, color)
+    player.sprite.player = player
     self.player_sprites.append(player.sprite)
     self.players.append(player)
     self.new_sprites.append(player.sprite)
     return self.pack_all_objects()
 
   def find_spawning_point(self, color):
-    spawn_map = {"red": (32, 32), "blue": (16*32, 16*32), "green": (16*32, 32), "yellow": (32, 16*32)}
+    spawn_map = {"red": (32, 32), "blue": (17*32, 17*32), "green": (17*32, 32), "yellow": (32, 17*32)}
     return spawn_map[color] 
+
+  def on_player_death(self, sprite):
+    sprite.player.lifes -= 1
+    sprite.pos = list(self.find_spawning_point(sprite.color))
+    self.updated_sprites.append(sprite)
 
   def get_next_color(self):
     colors = ["red", "blue", "green", "yellow"]
-    return colors[len(self.players) - 1]
+    return colors[len(self.players)]
 
   def update(self):
     def on_explosion_collide(sprite):
@@ -41,6 +47,8 @@ class Map(object):
         sprite.timer = 1
       elif type(sprite) is BrickSprite:
         sprite.active = False
+      elif type(sprite) is PlayerSprite:
+        self.on_player_death(sprite)
 
     self.brick_sprites = self.remove_inactive(self.brick_sprites)
     self.bomb_sprites = self.remove_inactive(self.bomb_sprites)
