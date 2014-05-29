@@ -10,8 +10,8 @@ class Sprite(object):
   
   @staticmethod
   def _line_distance(a_1, a_2, b_1, b_2):
-    if (a_1 < b_1 and b_2 < a_2) or (b_1 < a_1 and a_2 < b_2):
-      return 0.0
+    #if (a_1 < b_1 and b_2 < a_2) or (b_1 < a_1 and a_2 < b_2):
+    #  return 0.0
     return min(abs(a_2 - b_1), abs(a_1 - b_2))
 
   def __init__(self, x, y, w, h):
@@ -65,7 +65,7 @@ class TileSprite(Sprite):
 
 
 class BombSprite(Sprite):
-  DIM = (20, 20)
+  DIM = (18, 18)
   def __init__(self, x, y, power, timer=100):
     Sprite.__init__(self, x, y, BombSprite.DIM[0], BombSprite.DIM[1])
     self.timer_start = timer
@@ -84,11 +84,12 @@ class BombSprite(Sprite):
   def explode(self):
     self.active = False
     explosions = []
-    explosions.append(ExplosionSprite(self.pos[0], self.pos[1], 0, "left"))
-    explosions.append(ExplosionSprite(self.pos[0] - self.dim[0], self.pos[1], self.power - 1, "left"))
-    explosions.append(ExplosionSprite(self.pos[0] + self.dim[0], self.pos[1], self.power - 1, "right"))
-    explosions.append(ExplosionSprite(self.pos[0], self.pos[1] - self.dim[1] , self.power - 1, "up"))
-    explosions.append(ExplosionSprite(self.pos[0], self.pos[1] + self.dim[1] , self.power - 1, "down"))
+    x_off, y_off = (self.dim[0] - ExplosionSprite.DIM[0]) / 2, (self.dim[1] - ExplosionSprite.DIM[1]) / 2
+    explosions.append(ExplosionSprite(x_off + self.pos[0], y_off + self.pos[1], 0, "left"))
+    explosions.append(ExplosionSprite(x_off + self.pos[0] - self.dim[0], y_off + self.pos[1], self.power - 1, "left"))
+    explosions.append(ExplosionSprite(x_off + self.pos[0] + self.dim[0], y_off + self.pos[1], self.power - 1, "right"))
+    explosions.append(ExplosionSprite(x_off + self.pos[0], y_off + self.pos[1] - self.dim[1] , self.power - 1, "up"))
+    explosions.append(ExplosionSprite(x_off + self.pos[0], y_off + self.pos[1] + self.dim[1] , self.power - 1, "down"))
     return explosions
 
   def pack(self):
@@ -99,7 +100,7 @@ class BombSprite(Sprite):
     return packed
 
 class ExplosionSprite(Sprite):
-  DIM = (20, 20)
+  DIM = (18, 18)
   def __init__(self, x, y, power, direction, timer=10):
     Sprite.__init__(self, x, y, ExplosionSprite.DIM[0], ExplosionSprite.DIM[1])
     self.power = power

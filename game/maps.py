@@ -91,7 +91,8 @@ class Map(object):
 
   def on_drop_bomb(self, player):
     x, y = player.sprite.pos
-    bomb = BombSprite( x - (PlayerSprite.DIM[0] - BombSprite.DIM[0]) / 2, y - (PlayerSprite.DIM[1] - BombSprite.DIM[1]) / 2, player.bomb_power)
+    x_off, y_off = (PlayerSprite.DIM[0] - BombSprite.DIM[0]) / 2, (PlayerSprite.DIM[1] - BombSprite.DIM[1]) / 2
+    bomb = BombSprite( x + x_off, y + y_off, player.bomb_power)
     self.bomb_sprites.append(bomb)
     self.new_sprites.append(bomb)
 

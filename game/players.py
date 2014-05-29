@@ -5,7 +5,7 @@ class Player(object):
     self.color = color
     self.sprite = None
     self.velocity = 2
-    self.bomb_power = 2
+    self.bomb_power = 3
     self.bomb_cooldown = 15
     self.last_bomb = 50
 

@@ -6,22 +6,36 @@ from pygame.locals import *
 
 import sprite_utils
 import objects
+import sound
 
 class GUI(object):
   def __init__(self, grid, send_message_function):
     self.send_message = send_message_function
     self.grid = grid
-    pygame.init()
-    self.clock = pygame.time.Clock()
-    self.screen = pygame.display.set_mode((860,640), pygame.DOUBLEBUF, 32)
     self.down_keys = []
     self.player_positions = {}
     self.object_store = objects.ObjectStore()
+
+    pygame.init()
+    pygame.mixer.init()
+    sound.SoundEffects.init()
+    self.clock = pygame.time.Clock()
+    self.screen = pygame.display.set_mode((860,640), pygame.DOUBLEBUF, 32)
 
     self.player_sprite_mapper = sprite_utils.PlayerSpriteMapper()
     self.brick_sprite_mapper = sprite_utils.BrickSpriteMapper()
     self.bomb_sprite_mapper = sprite_utils.BombSpriteMapper()
 
+    self.bind_object_store_events()
+    self.set_background_music("dreamtest")
+
+  def bind_object_store_events(self):
+    def on_bomb_remove(bomb):
+      sound.SoundEffects.explosion.play()
+    self.object_store.bind_event("remove", "bomb", on_bomb_remove)
+
+  def set_background_music(self, song):
+    sound.SoundEffects.play_background(song)
 
   def update(self, data):
     for sprite in data["new"]:

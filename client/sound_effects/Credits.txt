@@ -1,0 +1,11 @@
+List of art assets used:
+
+atari_boom.wav
+	from opengameart.org
+	by dklon
+	licence: http://creativecommons.org/licenses/by/3.0/
+
+Dreamtest.ogg
+	from opengameart.org
+	by Android128
+	licence: http://creativecommons.org/licenses/by/3.0/
