@@ -1,6 +1,8 @@
 import math
 
 class Sprite(object):
+  SPRITE_ID = 1
+
   @staticmethod
   def _line_collides(a_1, a_2, b_1, b_2):
     return ((a_1 < b_1 and b_1 < a_2) or (a_1 < b_2 and b_2 < a_2)) or \
@@ -16,6 +18,8 @@ class Sprite(object):
     self.pos = [x, y]
     self.dim = (w, h)
     self.active = True
+    self.sprite_id = Sprite.SPRITE_ID
+    Sprite.SPRITE_ID += 1
 
   def collides(self, other):
     return (Sprite._line_collides(self.pos[0], self.pos[0] + self.dim[0], other.pos[0], other.pos[0] + other.dim[0]),
@@ -26,7 +30,7 @@ class Sprite(object):
             Sprite._line_distance(self.pos[1], self.pos[1] + self.dim[1], other.pos[1], other.pos[1] + other.dim[1]))
 
   def pack(self):
-    return {"pos": self.pos, "dim": self.dim}
+    return {"pos": self.pos, "dim": self.dim, "sprite_id": self.sprite_id}
 
 class PlayerSprite(Sprite):
   DIM = (24, 24)
@@ -62,14 +66,14 @@ class TileSprite(Sprite):
 
 class BombSprite(Sprite):
   DIM = (20, 20)
-  def __init__(self, x, y, power, timer=50):
+  def __init__(self, x, y, power, timer=100):
     Sprite.__init__(self, x, y, BombSprite.DIM[0], BombSprite.DIM[1])
     self.timer_start = timer
     self.timer = timer
     self.power = power
 
   def update(self):
-    if self.active == False:
+    if not self.active:
       return []
     self.timer -= 1
     if self.timer <= 0:

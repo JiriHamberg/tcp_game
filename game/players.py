@@ -4,9 +4,9 @@ class Player(object):
   def __init__(self, color):
     self.color = color
     self.sprite = None
-    self.velocity = 1
+    self.velocity = 2
     self.bomb_power = 2
-    self.bomb_cooldown = 50
+    self.bomb_cooldown = 15
     self.last_bomb = 50
 
   def update(self):

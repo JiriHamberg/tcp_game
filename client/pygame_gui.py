@@ -5,7 +5,7 @@ import pygame
 from pygame.locals import *
 
 import sprite_utils
-#import sprite_utils
+import objects
 
 class GUI(object):
   def __init__(self, grid, send_message_function):
@@ -16,14 +16,24 @@ class GUI(object):
     self.screen = pygame.display.set_mode((860,640), pygame.DOUBLEBUF, 32)
     self.down_keys = []
     self.player_positions = {}
+    self.object_store = objects.ObjectStore()
 
     self.player_sprite_mapper = sprite_utils.PlayerSpriteMapper()
     self.brick_sprite_mapper = sprite_utils.BrickSpriteMapper()
     self.bomb_sprite_mapper = sprite_utils.BombSpriteMapper()
 
-  def render(self, data):
+
+  def update(self, data):
+    for sprite in data["new"]:
+      self.object_store.add(sprite)
+    for sprite in data["updated"]:
+      self.object_store.update(sprite)
+    for sprite in data["deleted"]:
+      self.object_store.remove(sprite)
+
+  def render(self):
     self.screen.fill((255,255,255))
-    for sprite in data:
+    for sprite in self.object_store.all():
       if sprite["type"] == "player":
         self.draw_player(sprite)
       elif sprite["type"] == "brick":
@@ -123,7 +133,7 @@ class GUI(object):
 
       self.send_move_command()
       self.clock.tick(50)
-      #self.draw()
+      self.render()
       #pygame.display.update()
 
   def start_thread(self):

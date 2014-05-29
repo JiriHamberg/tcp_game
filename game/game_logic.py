@@ -22,7 +22,10 @@ class GameLogic(object):
     color = str(len(self.players) + 1)
     player = players.Player(color)
     self.players[connection_id] = player
-    self.map.on_join(player)
+    with self.lock:
+      data = self.map.on_join(player)
+      msg = {"type": "update", "data": data}
+    self.server.send_message(connection_id, msg)
 
   def event_leave(self, connection_id):
     with self.lock:
@@ -43,8 +46,8 @@ class GameLogic(object):
           player.on_drop_bomb()
 
   def update(self):
-    self.map.update()
-    with self.lock:  
+    with self.lock:
+      self.map.update()
       for k in self.players:
         self.players[k].update()
       msg = {"type": "update", "data": self.map.pack_objects()}

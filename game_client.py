@@ -42,7 +42,8 @@ class ClientIO(object):
     self.message_consumer.start()
 
 def on_update(_, data):
-  gui.render(data)
+  gui.update(data)
+  #gui.render(data)
 
 def send_message(message):
   client_io.queue.put( (1, message) )

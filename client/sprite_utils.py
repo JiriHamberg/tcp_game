@@ -1,5 +1,8 @@
 import pygame
+import os
  
+PATH = os.path.dirname( os.path.realpath( __file__ ) )
+
 class SpriteSheet(object):
   def __init__(self, filename):
     try:
@@ -58,7 +61,7 @@ class SpriteMapper(object):
     screen.blit(image, (x, y))
 
 class PlayerSpriteMapper(SpriteMapper):
-  IMAGE_PATH = "/home/jiri/Projects/Python/Bomber/client/sprites/Panda.png"
+  IMAGE_PATH = os.path.join(PATH, "sprites/Panda.png")
   def __init__(self):
     SpriteMapper.__init__(self, 32, 32, PlayerSpriteMapper.IMAGE_PATH)
 
@@ -88,12 +91,12 @@ class PlayerSpriteMapper(SpriteMapper):
       raise Exception("Invalid direction: %s" % (direction))
 
 class BrickSpriteMapper(SpriteMapper):
-  IMAGE_PATH = "/home/jiri/Projects/Python/Bomber/client/sprites/tiles.png"
+  IMAGE_PATH =  os.path.join(PATH, "sprites/tiles.png")
   def __init__(self):
     SpriteMapper.__init__(self, 32, 32, BrickSpriteMapper.IMAGE_PATH)
 
 class BombSpriteMapper(SpriteMapper):
-  IMAGE_PATH = "/home/jiri/Projects/Python/Bomber/client/sprites/BombExploding.png"
+  IMAGE_PATH = os.path.join(PATH, "sprites/BombExploding.png")
   
   def __init__(self):
     SpriteMapper.__init__(self, 32, 64, BombSpriteMapper.IMAGE_PATH)
