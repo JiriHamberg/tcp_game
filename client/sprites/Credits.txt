@@ -14,3 +14,13 @@ tiles.png
 	from opengameart.org
 	by dravenx
 	licence: http://creativecommons.org/licenses/by/3.0/
+
+crystal-blue.png
+crystal-green.png
+crystal-grey.png
+crystal-orange.png
+crystal-pink.png
+crystal-yellow.png
+	from opengameart.org
+	by qubodup
+	licence: http://creativecommons.org/licenses/by/3.0/

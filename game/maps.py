@@ -1,6 +1,8 @@
 import random
 
 from utils import *
+import items
+
 
 class Map(object):
   def __init__(self, w, h):
@@ -11,8 +13,9 @@ class Map(object):
       self.tile_sprites = TileLayout.generate()
       self.bomb_sprites = []
       self.explosion_sprites = []
+      self.item_sprites = []
       self.players = []
-     
+
       self.new_sprites = []
       self.updated_sprites = []
       self.deleted_sprites = []
@@ -42,6 +45,30 @@ class Map(object):
     return colors[len(self.players)]
 
   def update(self):
+    self.update_bricks()
+    self.update_bombs()
+    self.update_explosions()
+    self.update_items()
+
+  def update_bricks(self):
+    inactive = filter(lambda s: s.active == False, self.brick_sprites)
+    self.brick_sprites = self.remove_inactive(self.brick_sprites)
+    for sprite in inactive:
+      if items.Items.should_spawn():
+        item = ItemSprite(sprite.pos[0], sprite.pos[1], items.Items.random_item() )
+        self.item_sprites.append(item)
+        self.new_sprites.append(item)
+
+  def update_bombs(self):
+    self.bomb_sprites = self.remove_inactive(self.bomb_sprites)
+    new_explosions = []
+    for bomb in self.bomb_sprites:
+      new_explosions.extend(bomb.update())
+    self.explosion_sprites.extend(new_explosions)
+    self.new_sprites.extend(new_explosions)
+    self.updated_sprites.extend(self.bomb_sprites)
+
+  def update_explosions(self):
     def on_explosion_collide(sprite):
       if type(sprite) is BombSprite:
         sprite.timer = 1
@@ -50,8 +77,6 @@ class Map(object):
       elif type(sprite) is PlayerSprite:
         self.on_player_death(sprite)
 
-    self.brick_sprites = self.remove_inactive(self.brick_sprites)
-    self.bomb_sprites = self.remove_inactive(self.bomb_sprites)
     self.explosion_sprites = self.remove_inactive(self.explosion_sprites)
     new_explosions = []
     for explosion in self.explosion_sprites:
@@ -61,12 +86,12 @@ class Map(object):
     self.new_sprites.extend(new_explosions)
     self.explosion_sprites.extend(new_explosions)
     self.updated_sprites.extend(self.explosion_sprites)
-    new_explosions = []
-    for bomb in self.bomb_sprites:
-      new_explosions.extend(bomb.update())
-    self.explosion_sprites.extend(new_explosions)
-    self.new_sprites.extend(new_explosions)
-    self.updated_sprites.extend(self.bomb_sprites)
+
+  def update_items(self):
+    self.item_sprites = self.remove_inactive(self.item_sprites)
+    for item in self.item_sprites:
+      item.update(self.player_sprites, items.Items.collision_callback)
+    self.updated_sprites.extend(self.item_sprites)
 
   def remove_inactive(self, sprite_list):
     inactive = filter(lambda s: not s.active, sprite_list)
@@ -77,24 +102,7 @@ class Map(object):
     my_sprite = player.sprite
     collision_candidates = self.player_sprites + self.brick_sprites + self.tile_sprites + self.bomb_sprites
     collision_candidates.remove(my_sprite)
-    if command == "up":
-      collision_candidates = filter(lambda s: s.pos[1] <= my_sprite.pos[1] and s.collides(my_sprite)[0], collision_candidates)
-      closest = player.velocity if len(collision_candidates) == 0 else min(map(lambda s: s.distance(my_sprite)[1], collision_candidates))
-      my_sprite.pos[1] -= min(player.velocity, closest)
-    elif command == "down":
-      collision_candidates = filter(lambda s: s.pos[1] >= my_sprite.pos[1] and s.collides(my_sprite)[0], collision_candidates)
-      closest = player.velocity if len(collision_candidates) == 0 else min(map(lambda s: s.distance(my_sprite)[1], collision_candidates))
-      my_sprite.pos[1] += min(player.velocity, closest)
-    elif command == "left":
-      collision_candidates = filter(lambda s: s.pos[0] <= my_sprite.pos[0] and s.collides(my_sprite)[1], collision_candidates)
-      closest = player.velocity if len(collision_candidates) == 0 else min(map(lambda s: s.distance(my_sprite)[0], collision_candidates))
-      my_sprite.pos[0] -= min(player.velocity, closest)
-    elif command == "right":
-      collision_candidates = filter(lambda s: s.pos[0] >= my_sprite.pos[0] and s.collides(my_sprite)[1], collision_candidates)
-      closest = player.velocity if len(collision_candidates) == 0 else min(map(lambda s: s.distance(my_sprite)[0], collision_candidates))
-      my_sprite.pos[0] += min(player.velocity, closest)
-    else:
-      raise Exception("Invalid command for move: must be 'up', 'down', 'left' or 'right', but is '%s'" % (command))
+    my_sprite.move_no_collision(command, player.velocity, collision_candidates)
     self.updated_sprites.append(my_sprite)
 
   def on_drop_bomb(self, player):
@@ -120,43 +128,37 @@ class Map(object):
     return objects
 
   def all_sprites(self):
-    return self.player_sprites + self.brick_sprites + self.tile_sprites + self.bomb_sprites + self.explosion_sprites
+    return self.player_sprites + self.brick_sprites + self.tile_sprites + self.bomb_sprites + self.explosion_sprites + self.item_sprites
 
   def solid_sprites(self):
     return self.player_sprites + self.brick_sprites + self.tile_sprites + self.bomb_sprites
+
 
 class BrickLayout(object):
   @staticmethod
   def generate():
     bricks = []
-
     for x in range(3, 16):
       for y in range(1, 18):
         if not x % 2 == 0 or not y % 2 == 0:
           bricks.append(BrickSprite(32 * x , 32 * y))
-
     for x in [1, 2, 16, 17]:
       for y in range(3, 16):
         if not x % 2 == 0 or not y % 2 == 0:
           bricks.append(BrickSprite(32 * x , 32 * y))
-
     return bricks
 
 class TileLayout(object):
   @staticmethod
   def generate():
     tiles = []
-
     for y in range(0, 19):
       tiles.append(TileSprite(0, y*32))
       tiles.append(TileSprite(18*32, y*32))
-
     for x in range(1, 18):
       tiles.append(TileSprite(x*32, 0))
       tiles.append(TileSprite(x*32, 18*32))
-
     for x in [ 2*i for i in range(0, 9)]:
       for y in [ 2*i for i in range(0, 9)]:
         tiles.append(TileSprite(64 + x*32, 64 + y*32))
-
     return tiles

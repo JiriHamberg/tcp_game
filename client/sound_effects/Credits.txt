@@ -9,3 +9,17 @@ Dreamtest.ogg
 	from opengameart.org
 	by Android128
 	licence: http://creativecommons.org/licenses/by/3.0/
+
+coin1.wav
+coin2.wav
+coin3.wav
+coin4.wav
+coin5.wav
+coin6.wav
+coin7.wav
+coin8.wav
+coin9.wav
+coin10.wav
+	from opengameart.org
+	by Luke.RUSTLTD
+	licence: http://creativecommons.org/publicdomain/zero/1.0/

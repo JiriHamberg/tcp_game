@@ -32,6 +32,27 @@ class Sprite(object):
   def pack(self):
     return {"pos": self.pos, "dim": self.dim, "sprite_id": self.sprite_id}
 
+  def move_no_collision(self, direction, distance, collision_candidates):
+    if direction == "up":
+      collision_candidates = filter(lambda s: s.pos[1] <= self.pos[1] and s.collides(self)[0], collision_candidates)
+      closest = distance if len(collision_candidates) == 0 else min(map(lambda s: s.distance(self)[1], collision_candidates))
+      self.pos[1] -= min(distance, closest)
+    elif direction == "down":
+      collision_candidates = filter(lambda s: s.pos[1] >= self.pos[1] and s.collides(self)[0], collision_candidates)
+      closest = distance if len(collision_candidates) == 0 else min(map(lambda s: s.distance(self)[1], collision_candidates))
+      self.pos[1] += min(distance, closest)
+    elif direction == "left":
+      collision_candidates = filter(lambda s: s.pos[0] <= self.pos[0] and s.collides(self)[1], collision_candidates)
+      closest = distance if len(collision_candidates) == 0 else min(map(lambda s: s.distance(self)[0], collision_candidates))
+      self.pos[0] -= min(distance, closest)
+    elif direction == "right":
+      collision_candidates = filter(lambda s: s.pos[0] >= self.pos[0] and s.collides(self)[1], collision_candidates)
+      closest = distance if len(collision_candidates) == 0 else min(map(lambda s: s.distance(self)[0], collision_candidates))
+      self.pos[0] += min(distance, closest)
+    else:
+      raise Exception("Invalid direction: must be 'up', 'down', 'left' or 'right', but is '%s'" % (command))
+
+
 class PlayerSprite(Sprite):
   DIM = (24, 24)
   def __init__(self, x, y, color):
@@ -148,4 +169,32 @@ class ExplosionSprite(Sprite):
       raise Exception("Invalid direction: %s" % (self.direction))
     return explosions
 
+class ItemSprite(Sprite):
+  DIM = (32, 32)
+  def __init__(self, x, y, item_type, timer=300):
+    Sprite.__init__(self, x, y, ItemSprite.DIM[0], ItemSprite.DIM[1])
+    self.active = True
+    self.timer = timer
+    self.timer_start = timer
+    self.item_type = item_type
 
+  def update(self, targets, collision_callback):
+    if self.active == False:
+      return
+    collided = False
+    for sprite in targets:
+      if all(self.collides(sprite)):
+        collision_callback(sprite, self.item_type)
+        self.active = False
+        break
+    self.timer -= 1
+    if self.timer <= 0:
+      self.active = False
+
+  def pack(self):
+    packed = Sprite.pack(self)
+    packed["type"] = "item"
+    packed["timer"] = self.timer
+    packed["timer_start"] = self.timer_start
+    packed["item_type"] = self.item_type
+    return packed

@@ -110,3 +110,16 @@ class BombSpriteMapper(SpriteMapper):
 
   def explosion_animation(self):
     return self.sprites_at([(i, 1) for i in range(8, 14)], colorkey=(255, 255, 255))
+
+class ItemSpriteMapper(SpriteMapper):
+
+  #align = SpriteMapper.align
+
+  def __init__(self):
+    self.w = 32
+    self.h = 32
+    self.blue = SpriteMapper(self.w, self.h, os.path.join(PATH, "sprites/crystal-blue.png"))
+    self.green = SpriteMapper(self.w, self.h, os.path.join(PATH, "sprites/crystal-green.png"))
+
+  def animation(self, color):
+    return {"blue": self.blue, "green": self.green}[color].sprites_at([(i, 1) for i in range(1, 9)], colorkey = -1)
