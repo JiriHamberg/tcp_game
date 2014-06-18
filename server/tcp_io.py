@@ -9,7 +9,7 @@ import errno
 import config
 #protocol:
 #   header                  data
-#   8B (=size of u long)   
+#   4B (=size of u long)   
 
 def _start_thread(self):
   thread = threading.Thread(target = self.run)
@@ -19,7 +19,7 @@ def _start_thread(self):
 
 class Server(object):
   start_thread = _start_thread
-  HEADER_SIZE = 8
+  HEADER_SIZE = 4
   ENCODING = 'UTF-8'
 
   def __init__(self, address):
@@ -58,7 +58,8 @@ class OutputDispatcher(object):
     self.queue = Queue.Queue()
 
   def create_packet(self, message):
-    return struct.pack("!Q", len(message)) + message.encode(encoding=Server.ENCODING)
+    message = message.encode(encoding=Server.ENCODING)
+    return struct.pack("!L", len(message)) + message
 
   def run(self):
     for receiver_id, message in iter(self.queue.get, None):
@@ -95,7 +96,7 @@ class Client(object):
       data_buffer = self.data_buffer
       if len(data_buffer) < 2:
         break
-      next_msg_len = struct.unpack("!Q", str(data_buffer[ : Server.HEADER_SIZE]))[0]
+      next_msg_len = struct.unpack("!L", str(data_buffer[ : Server.HEADER_SIZE]))[0]
       if len(data_buffer) >= next_msg_len + Server.HEADER_SIZE:
         msg = str(data_buffer[Server.HEADER_SIZE : next_msg_len + Server.HEADER_SIZE]).decode(encoding=Server.ENCODING)
         self.data_buffer = data_buffer[next_msg_len + Server.HEADER_SIZE :]
