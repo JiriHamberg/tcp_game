@@ -58,7 +58,7 @@ class ClientConnection(val socket: Socket, val producedQueue: LinkedBlockingQueu
 				Array.copy(messageBuffer, messageSize + 4, messageBuffer, 0, bufferSize)  
 				try {
 					producedQueue.put(parse(message))
-					println("produced: " + message)
+					//println("produced: " + message)
 				} catch  {
 					case t: Throwable => {
 						println("Error parsing message: " + message)
