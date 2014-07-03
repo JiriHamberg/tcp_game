@@ -35,15 +35,17 @@ class GameLogic(object):
   def event_move(self, connection_id, data):
     with self.lock:
       if connection_id in self.players:
-        self.map.on_move(self.players[connection_id], data["command"])
+        self.players[connection_id].move_command = data["command"]
+        #self.map.on_move(self.players[connection_id], data["command"])
 
   def event_bomb(self, connection_id, data):
     with self.lock:
       if connection_id in self.players:
         player = self.players[connection_id]
-        if player.can_drop_bomb():
-          self.map.on_drop_bomb(player)
-          player.on_drop_bomb()
+        player.bomb_command = True
+        #if player.can_drop_bomb():
+        #  self.map.on_drop_bomb(player)
+        #  player.on_drop_bomb()
 
   def update(self):
     with self.lock:
@@ -57,7 +59,7 @@ class GameLogic(object):
 class GameServer(object):
   FPS = 20.0
   def __init__(self):
-    self.server = tcp_io.Server(('127.0.0.1', 13373))
+    self.server = tcp_io.Server(('jiri-notebook.Elisa', 11111))
     self.event_handler = handler.JSON_EventMap(self.server.dispatch_message)
     self.server.set_handler(self.event_handler)
     self.main_loop_function = None

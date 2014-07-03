@@ -2,10 +2,12 @@
 
 class Player(object):
   def __init__(self, color):
+    self.bomb_command = False
+    self.move_command = None
     self.color = color
     self.sprite = None
     self.lifes = 3
-    self.velocity = 2
+    self.velocity = 4
     self.bomb_power = 3
     self.bomb_cooldown = 15
     self.last_bomb = 50

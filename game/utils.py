@@ -1,4 +1,7 @@
-import math
+import math, time
+
+def get_current_millis():
+  return int(time.time() * 1000)
 
 class Sprite(object):
   SPRITE_ID = 1
@@ -33,25 +36,30 @@ class Sprite(object):
     return {"pos": self.pos, "dim": self.dim, "sprite_id": self.sprite_id}
 
   def move_no_collision(self, direction, distance, collision_candidates):
+    moved = [0.0, 0.0]
     if direction == "up":
       collision_candidates = filter(lambda s: s.pos[1] <= self.pos[1] and s.collides(self)[0], collision_candidates)
       closest = distance if len(collision_candidates) == 0 else min(map(lambda s: s.distance(self)[1], collision_candidates))
-      self.pos[1] -= min(distance, closest)
+      moved[1] = min(distance, closest)
+      self.pos[1] -= moved[1]
     elif direction == "down":
       collision_candidates = filter(lambda s: s.pos[1] >= self.pos[1] and s.collides(self)[0], collision_candidates)
       closest = distance if len(collision_candidates) == 0 else min(map(lambda s: s.distance(self)[1], collision_candidates))
-      self.pos[1] += min(distance, closest)
+      moved[1] = min(distance, closest)
+      self.pos[1] += moved[1]
     elif direction == "left":
       collision_candidates = filter(lambda s: s.pos[0] <= self.pos[0] and s.collides(self)[1], collision_candidates)
       closest = distance if len(collision_candidates) == 0 else min(map(lambda s: s.distance(self)[0], collision_candidates))
-      self.pos[0] -= min(distance, closest)
+      moved[0] = min(distance, closest)
+      self.pos[0] -= moved[0]
     elif direction == "right":
       collision_candidates = filter(lambda s: s.pos[0] >= self.pos[0] and s.collides(self)[1], collision_candidates)
       closest = distance if len(collision_candidates) == 0 else min(map(lambda s: s.distance(self)[0], collision_candidates))
-      self.pos[0] += min(distance, closest)
+      moved[0] = min(distance, closest)
+      self.pos[0] += moved[0]
     else:
       raise Exception("Invalid direction: must be 'up', 'down', 'left' or 'right', but is '%s'" % (command))
-
+    return moved
 
 class PlayerSprite(Sprite):
   DIM = (24, 24)
@@ -59,11 +67,26 @@ class PlayerSprite(Sprite):
     Sprite.__init__(self, x, y, PlayerSprite.DIM[0], PlayerSprite.DIM[1])
     self.type = "player"
     self.color = color
+    self.active = False
+    self.direction = "down"
+    self.last_state_change = get_current_millis()
+
+  #decorateter pattern
+  def move_no_collision(self, direction, distance, collision_candidates):
+    moved = Sprite.move_no_collision(self, direction, distance, collision_candidates)
+    new_active = sum(moved) != 0
+    if self.direction != direction or new_active != self.active:
+      self.last_state_change = get_current_millis()
+    self.active = new_active
+    self.direction = direction
 
   def pack(self):
     packed = Sprite.pack(self)
     packed["type"] = self.type
     packed["color"] = self.color
+    packed["active"] = self.active
+    packed["direction"] = self.direction
+    packed["last_state_change"] = self.last_state_change
     return packed
 
 class BrickSprite(Sprite):

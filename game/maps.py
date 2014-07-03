@@ -45,10 +45,27 @@ class Map(object):
     return colors[len(self.players)]
 
   def update(self):
+    self.update_players()
     self.update_bricks()
     self.update_bombs()
     self.update_explosions()
     self.update_items()
+
+  def update_players(self):
+    for p in self.players:
+      if p.bomb_command:
+        p.bomb_command = False
+        if p.can_drop_bomb():
+          self.on_drop_bomb(p)
+          p.on_drop_bomb()      
+      if p.move_command:
+        self.on_move(p, p.move_command)
+      else:
+        if p.sprite.active:
+          p.sprite.active = False
+          p.sprite.last_update = get_current_millis() 
+      p.move_command = None
+      self.updated_sprites.append(p.sprite)
 
   def update_bricks(self):
     inactive = filter(lambda s: s.active == False, self.brick_sprites)

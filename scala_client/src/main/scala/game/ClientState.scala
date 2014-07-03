@@ -40,6 +40,7 @@ class ClientLogic(val fps: Int, val canvas: GameFrame) extends Runnable {
 			messageQueue.drainTo(temp)
 			temp
 		}
+		//messages.foreach(println)
 		messages.foreach(message => updateSprites(message))
 	}
 
@@ -53,21 +54,27 @@ class ClientLogic(val fps: Int, val canvas: GameFrame) extends Runnable {
 		val added = for (JObject(sprite) <- message \ "data" \ "new") yield Sprite(sprite)
 
 		deleted.foreach(s => spriteMap -= s.id)
+		//spriteMap.values.foreach(_.update())		
+		//updated.foreach(s => mergeSprite(s))
 		updated.foreach(s => spriteMap += (s.id -> s))
 		added.foreach(s => spriteMap += (s.id -> s))
 
 		canvas.updateSprites(spriteMap.values)
 	}
 
+	/*private def mergeSprite(newSprite: Sprite) {
+		val old = spriteMap.get(newSprite.id)
+		if (old.isEmpty) return		
+		newSprite.merge(old.get)
+		spriteMap += (newSprite.id -> newSprite)
+	}*/
+
 	private def dispatchCommands {
 		commandQueue.map(c => commandToJSON(c)).foreach(c => clientOut.put(c))
 	}
 
 	private def commandToJSON(command: Any): JValue = command match {
-		case BombCommand => {
-			println("Command dispatched!")
-			("type" -> "bomb") ~ ("data" -> "")
-		}
+		case BombCommand => ("type" -> "bomb") ~ ("data" -> "")
 		case MoveCommand(direction) =>
 			("type" -> "move") ~ 
 			("data" -> ("command" -> direction))
