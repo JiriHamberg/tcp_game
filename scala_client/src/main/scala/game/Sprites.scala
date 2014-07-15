@@ -8,6 +8,8 @@ import game.animation._
 
 abstract class Sprite(val pos: (Int, Int), val dim: (Int, Int), val id: Int) {
 	def paint(g: Graphics2D): Unit
+
+	def onDelete() = {}
 }
 
 object Sprite {
@@ -20,15 +22,10 @@ object Sprite {
 
 		spriteType match {
 			case "player" => new PlayerSprite(pos, dim, id, data)
-
 			case "bomb" => new BombSprite(pos, dim, id, data)
-
 			case "explosion" => new ExplosionSprite(pos, dim, id, data)
-
 			case "item" => new ItemSprite(pos, dim, id, data)
-
 			case "brick" => new BrickSprite(pos, dim, id)
-
 			case "tile" => new TileSprite(pos, dim, id)
 
 			case _ => 
@@ -82,6 +79,10 @@ class BombSprite(pos: (Int, Int), dim: (Int, Int), id: Int, val tick: Int, val t
 		val align = (0, -32)
 		g.drawImage(img, pos._1 + align._1, pos._2 + align._2, null)
 	}
+
+	override def onDelete() {
+		game.sound.Bomb.playExplosionSound
+	}
 }
 
 class ExplosionSprite(pos: (Int, Int), dim: (Int, Int), id: Int, val tick: Int, val tickCount: Int) extends Sprite(pos, dim, id) {
@@ -114,5 +115,10 @@ class ItemSprite(pos: (Int, Int), dim: (Int, Int), id: Int, val tick: Int, val t
 		val img = Crystal.getCrystalFrame(tick, tickCount, color)
 		val align = (0, 0)
 		g.drawImage(img, pos._1 + align._1, pos._2 + align._2, null)
+	}
+
+	override def onDelete() {
+		//println("item collected!")
+		game.sound.Item.playCollectSound
 	}
 }

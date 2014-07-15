@@ -17,7 +17,7 @@ object ImageUtil {
 	}
 
 	def loadImage(relativePath: String): BufferedImage = {
-		//ImageIO.read(new File(getAbsolutePath(relativePath)))
+		println("LOADING RESOURCE %s".format(relativePath))
 		ImageIO.read(getClass().getResource(relativePath))
 	}
 

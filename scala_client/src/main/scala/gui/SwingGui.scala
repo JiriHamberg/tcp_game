@@ -9,6 +9,7 @@ import java.awt.event._
 
 import game.Sprite
 import game.commands._
+import game.sound._
 
 class GameFrame extends MainFrame {
 	val sprites =  new LinkedBlockingQueue[Sprite]() 
@@ -25,7 +26,7 @@ class GameFrame extends MainFrame {
 	    	case KeyPressed(_, key, _, _) => onKeyPressed(key)
 	        case KeyReleased(_, key, _, _) => onKeyReleased(key)
 	   
-	        case x: Any => println(x)
+	        case x: Any => {} //println(x)
     	}
 
     	def onKeyPressed(key: Value) = key match {
@@ -34,7 +35,7 @@ class GameFrame extends MainFrame {
     		case Key.W => commandOut.put(MoveCommand("up"))
     		case Key.D => commandOut.put(MoveCommand("right"))
     		case Key.S => commandOut.put(MoveCommand("down"))
-    		
+    		case _ => {}	
     	}
 
     	def onKeyReleased(key: Value) = key match {
@@ -43,16 +44,17 @@ class GameFrame extends MainFrame {
     		case Key.W => commandOut.remove(MoveCommand("up"))
     		case Key.D => commandOut.remove(MoveCommand("right"))
     		case Key.S => commandOut.remove(MoveCommand("down"))
+    		case _ => {}
     	}
     	
 
 		override def paint(g: Graphics2D) = {
-			g.setBackground(new Color(0,255,0))    
-			//g.setColor(new Color(255, 0, 0))
-			//g.drawOval(100, 200, 50, 75)
+			g.setBackground(new Color(0,255,0))
 			sprites.foreach(s => s.paint(g))
 		}
 	}
+
+	menuBar = new GameMenuBar(this)
 
 	title = "Bomber"
 	contents = new FlowPanel {
@@ -60,9 +62,6 @@ class GameFrame extends MainFrame {
 	}
 
 	centerOnScreen
-	//listenTo(gamePanel)
-	//listenTo(this)
-	//contents.foreach(listenTo(_))
 
 	reactions += {
 		case WindowClosing(e) => {
@@ -76,9 +75,29 @@ class GameFrame extends MainFrame {
     	currentSprites.foreach(s => sprites.put(s))
     	this.repaint
     }
+
+    def onDisconnect() {
+    	sprites.clear
+    	commandOut = null
+    	this.repaint
+    }
 }
 
 object GameGUI extends SimpleSwingApplication {
 	val gameFrame = new GameFrame
+	
 	def top = gameFrame
+
+	//force lazy objects to be initialized
+	def loadResources() {
+		game.sound.Bomb
+		game.sound.Item
+		game.animation.Bomb
+		game.animation.Crystal
+		game.animation.PlayerAnimation
+		game.animation.Tiles		
+	}
+
+	loadResources()
+	//SoundSystem.playBackground("/sound_effects/PizzaParty.au", -20.0f)
 }
