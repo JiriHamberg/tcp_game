@@ -60,7 +60,7 @@ class ClientLogic(val fps: Int, val canvas: GameFrame) extends Runnable {
 		updated.foreach(s => spriteMap += (s.id -> s))
 		added.foreach(s => spriteMap += (s.id -> s))
 
-		canvas.updateSprites(spriteMap.values)
+		canvas.updateSprites(spriteMap.values.toList.sortBy(sprite => sprite.depth))
 	}
 
 	private def dispatchCommands {

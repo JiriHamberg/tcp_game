@@ -70,7 +70,7 @@ class GameFrame extends MainFrame {
     	}
     }
 
-    def updateSprites(currentSprites: Iterable[Sprite]) {
+    def updateSprites(currentSprites: List[Sprite]) {
     	sprites.clear
     	currentSprites.foreach(s => sprites.put(s))
     	this.repaint

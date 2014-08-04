@@ -10,6 +10,8 @@ abstract class Sprite(val pos: (Int, Int), val dim: (Int, Int), val id: Int) {
 	def paint(g: Graphics2D): Unit
 
 	def onDelete() = {}
+
+	def depth: Int = 0
 }
 
 object Sprite {
@@ -52,6 +54,7 @@ class PlayerSprite(pos: (Int, Int), dim: (Int, Int), id: Int, val active: Boolea
 		val align = PlayerAnimation.getAlignment(dim)
 		g.drawImage(img, pos._1 + align._1, pos._2 + align._2, null)
 	}
+	override val depth = 2
 }
 
 class BrickSprite(pos: (Int, Int), dim: (Int, Int), id: Int) extends Sprite(pos, dim, id) {
@@ -83,6 +86,8 @@ class BombSprite(pos: (Int, Int), dim: (Int, Int), id: Int, val tick: Int, val t
 	override def onDelete() {
 		game.sound.Bomb.playExplosionSound
 	}
+
+	override val depth = 1
 }
 
 class ExplosionSprite(pos: (Int, Int), dim: (Int, Int), id: Int, val tick: Int, val tickCount: Int) extends Sprite(pos, dim, id) {
@@ -96,6 +101,8 @@ class ExplosionSprite(pos: (Int, Int), dim: (Int, Int), id: Int, val tick: Int, 
 		val align = (0, -32)
 		g.drawImage(img, pos._1 + align._1, pos._2 + align._2, null)
 	}
+
+	override val depth = 3
 }
 
 class ItemSprite(pos: (Int, Int), dim: (Int, Int), id: Int, val tick: Int, val tickCount: Int, val itemType: String) extends Sprite(pos, dim, id) {
@@ -121,4 +128,6 @@ class ItemSprite(pos: (Int, Int), dim: (Int, Int), id: Int, val tick: Int, val t
 		//println("item collected!")
 		game.sound.Item.playCollectSound
 	}
+
+	override val depth = 1
 }

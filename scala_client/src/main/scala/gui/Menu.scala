@@ -7,12 +7,12 @@ import gui.GameFrame
 import game._
 
 class GameMenuBar(val gameFrame: GameFrame) extends MenuBar {
-	contents += new Menu("Games") {
-		contents += new MenuItem(Action("Join a Game") { onJoinGame() })
-	}
-
 	private def onJoinGame() {
 		new JoinDialog()
+	}
+
+	contents += new Menu("Games") {
+		contents += new MenuItem(Action("Join a Game") { onJoinGame() })
 	}
 }
 
@@ -45,6 +45,8 @@ class JoinDialog extends Dialog {
 
 	def join(address: String, port: Int): ConnectionStatus = Client.connect(address, port, 30)
 
+	minimumSize = new Dimension(200, 140)
+	resizable = false
 	modal = true
 
 	contents = new BorderPanel {

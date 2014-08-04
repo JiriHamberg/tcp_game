@@ -51,7 +51,7 @@ def send_message(message):
 #if __name__ == "__main__":
   #msg = {'type':'join', 'data': ''}  
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(('127.0.0.1', 13373))
+s.connect(('jiri-notebook', 11111))
 client_io = ClientIO(s)
 
 client_io.event_map.bind_event("update", on_update)
