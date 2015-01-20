@@ -84,7 +84,7 @@ class BombSprite(pos: (Int, Int), dim: (Int, Int), id: Int, val tick: Int, val t
 	}
 
 	override def onDelete() {
-		game.sound.Bomb.playExplosionSound
+		//game.sound.Bomb.playExplosionSound
 	}
 
 	override val depth = 1
@@ -126,7 +126,7 @@ class ItemSprite(pos: (Int, Int), dim: (Int, Int), id: Int, val tick: Int, val t
 
 	override def onDelete() {
 		//println("item collected!")
-		game.sound.Item.playCollectSound
+		//game.sound.Item.playCollectSound
 	}
 
 	override val depth = 1

@@ -59,7 +59,7 @@ class GameLogic(object):
 class GameServer(object):
   FPS = 20.0
   def __init__(self):
-    self.server = tcp_io.Server(('jiri-notebook', 11111))
+    self.server = tcp_io.Server(('localhost', 11111))
     self.event_handler = handler.JSON_EventMap(self.server.dispatch_message)
     self.server.set_handler(self.event_handler)
     self.main_loop_function = None

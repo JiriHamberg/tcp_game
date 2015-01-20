@@ -41,9 +41,12 @@ object SoundSystem {
 
 	def playSound(audio: AudioResource, volumeAdjustment: Float = 0.0f) {
 		val stream = audio.getAudioInputStream()
-		val clip = AudioSystem.getClip
+		val info = new DataLine.Info(classOf[Clip], audio.format)
+		//val clip = AudioSystem.getClip
+		val clip = AudioSystem.getLine(info).asInstanceOf[Clip]
 		clip.open(stream)
-		adjustVolume(clip, volumeAdjustment)
+		//openJDK does not seem to support "Master control" - Great!
+		//adjustVolume(clip, volumeAdjustment)
 		addDefaultLineListener(clip)
 		clip.start()
 	}
